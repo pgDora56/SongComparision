@@ -1,6 +1,6 @@
 import csv
+import sys
 import Levenshtein
-# import sqlite3
 
 
 class SongData:
@@ -74,20 +74,63 @@ def compare(data1, data2):
         ARRANGER_GRAVITY +
         GENRE_GRAVITY +
         YEAR_GRAVITY
-    )
+    ) * 100
 
 
-filename = input("Filename > ")
+# filename = input("Filename > ")
 
-stacked = []
-compares = []
 
-with open(filename) as f:
-    reader = csv.reader(f)
-    for line in reader:
-        tmp = SongData(line)
-        for x in stacked:
-            distance = compare(tmp, x)
-            compares.append((distance, str(tmp), str(x)))
-        stacked.append(tmp)
-compares.sort(key=lambda x: x[0])
+def sameCompare(filename):
+    stacked = []
+    compares = []
+
+    with open(filename) as f:
+        reader = csv.reader(f)
+        for line in reader:
+            tmp = SongData(line)
+            for x in stacked:
+                distance = compare(tmp, x)
+                compares.append((distance, str(tmp), str(x)))
+            stacked.append(tmp)
+    compares.sort(reverse=True, key=lambda x: x[0])
+
+    outputCompares(compares)
+
+
+def twoCompare(filename1, filename2):
+    stacked = []
+    compares = []
+
+    with open(filename1) as f:
+        reader = csv.reader(f)
+        for line in reader:
+            stacked.append(SongData(line))
+
+    with open(filename2) as f:
+        reader = csv.reader(f)
+        for line in reader:
+            tmp = SongData(line)
+            for x in stacked:
+                distance = compare(tmp, x)
+                compares.append((distance, str(tmp), str(x)))
+    compares.sort(reverse=True, key=lambda x: x[0])
+
+    outputCompares(compares)
+
+
+def outputCompares(compares):
+    for c in compares:
+        print("{:.4g}% - \"{}\" <-> \"{}\"".format(c[0], c[1], c[2]))
+
+
+if __name__ == "__main__":
+    arglen = len(sys.argv)
+    if arglen == 2:  # compare same file
+        sameCompare(sys.argv[1])
+    elif arglen == 3:  # compare two file
+        if sys.argv[1] == sys.argv[2]:
+            sameCompare(sys.argv[1])
+        else:
+            twoCompare(sys.argv[1], sys.argv[2])
+    else:
+        print(f"Usage: python3 {sys.argv[0]} csvfile1 [option:csvfile2]")
