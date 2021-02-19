@@ -14,10 +14,6 @@ class SongData:
         self.composer = lis[4]
         self.arranger = lis[5]
         self.genre = lis[6]
-        try:
-            self.year = int(lis[7])
-        except ValueError:
-            self.year = None
 
     def __str__(self):
         return f"{self.program} {self.title} {self.artist}"
@@ -31,7 +27,6 @@ def compare(data1, data2):
     COMPOSER_GRAVITY = 1
     ARRANGER_GRAVITY = 1
     GENRE_GRAVITY = 0.1
-    YEAR_GRAVITY = 1
 
     if data1.program == "" or data2.program == "":
         PRG_GRAVITY = 0
@@ -50,12 +45,6 @@ def compare(data1, data2):
     arrangerDistance = Levenshtein.ratio(data1.arranger, data2.arranger)
 
     genreDistance = Levenshtein.distance(data1.genre, data2.genre)
-    if data1.year is None or data2.year is None:
-        YEAR_GRAVITY = 0
-        yearDistance = 0
-    else:
-        yearDistance = abs(data1.year - data2.year)
-
     return (
         prgDistance * PRG_GRAVITY +
         titleDistance * TITLE_GRAVITY +
@@ -63,8 +52,7 @@ def compare(data1, data2):
         lyricistDistance * LYRICIST_GRAVITY +
         composerDistance * COMPOSER_GRAVITY +
         arrangerDistance * ARRANGER_GRAVITY +
-        genreDistance * GENRE_GRAVITY +
-        yearDistance * YEAR_GRAVITY
+        genreDistance * GENRE_GRAVITY
     ) / (
         PRG_GRAVITY +
         TITLE_GRAVITY +
@@ -72,12 +60,8 @@ def compare(data1, data2):
         LYRICIST_GRAVITY +
         COMPOSER_GRAVITY +
         ARRANGER_GRAVITY +
-        GENRE_GRAVITY +
-        YEAR_GRAVITY
+        GENRE_GRAVITY
     ) * 100
-
-
-# filename = input("Filename > ")
 
 
 def sameCompare(filename):
